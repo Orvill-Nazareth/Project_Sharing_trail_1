@@ -33,7 +33,6 @@ df.transect <- read_excel(datasheet, sheet = sheet_DS) %>%
              endlatdms = paste(.$`End Latitude N Deg`, "°", .$`End Latitude N Min`, "'", .$`End Latitude N Sec`, "''", sep = ""),
              startlongdms = paste(.$`Start Longitude E Deg`, "°", .$`Start Longitude E Min`, "'", .$`Start Longitude E Sec`, "''", sep = ""),
              startlatdms = paste(.$`Start Latitude N Deg`, "°", .$`Start Latitude N Min`, "'", .$`Start Latitude N Sec`, "''", sep = ""))
-  #set_rownames(.$`Transect.ID`)
 
 transect <-  apply(df.transect,1,function(x){points <- data.frame(lng=as.numeric(c(x["start_long"], 
                                                                          x["end_long"])),
@@ -62,11 +61,10 @@ df.pellet <- read_excel(datasheet, sheet = sheet_pellet) %>%
              end_long = .$ `End GPS Location E Deg`+(.$`End GPS Location E Min`/60)+(.$`End GPS Location E Sec`/3600),
              id = paste(.$`Transect ID`, .$`Plot No.`, sep = " "),
              .,
-             "endlongdms" = paste(.$`End GPS Location E Deg`, "°", .$`End GPS Location E Min`, "'", .$`End GPS Location E Sec`, "''", sep = ""),
-             "endlatdms" = paste(.$`End GPS Location N Deg`, "°", .$`End GPS Location N Min`, "'", .$`End GPS Location N Sec`, "''", sep = ""),
-             "startlongdms" = paste(.$`Start GPS Location E Deg`, "°", .$`Start GPS Location E Min`, "'", .$`Start GPS Location E Sec`, "''", sep = ""),
-             "startlatdms" = paste(.$`Start GPS Location N Deg`, "°", .$`Start GPS Location N Min`, "'", .$`Start GPS Location N Sec`, "''", sep = ""))
-#  set_rownames(.$`id`)
+             endlongdms = paste(.$`End GPS Location E Deg`, "°", .$`End GPS Location E Min`, "'", .$`End GPS Location E Sec`, "''", sep = ""),
+             endlatdms = paste(.$`End GPS Location N Deg`, "°", .$`End GPS Location N Min`, "'", .$`End GPS Location N Sec`, "''", sep = ""),
+             startlongdms = paste(.$`Start GPS Location E Deg`, "°", .$`Start GPS Location E Min`, "'", .$`Start GPS Location E Sec`, "''", sep = ""),
+             startlatdms = paste(.$`Start GPS Location N Deg`, "°", .$`Start GPS Location N Min`, "'", .$`Start GPS Location N Sec`, "''", sep = ""))
 
 pellet <- apply(df.pellet,1,function(x){
   points <- data.frame(lng=as.numeric(c(x["start_long"], 
@@ -151,6 +149,7 @@ leaflet() %>%
   hideGroup("Species Sighting") %>% 
   hideGroup("Pellet Plot") %>% 
   hideGroup("Vegetation Plots")
+
 #sort data for distance----
 #convert bearings to angle----
 DS_raw_bearing <- within (DS_raw, {sighting_angle <- ifelse( ifelse(abs(`Compass Bearing Animal`-`Compass Bearing Walk`)>90,
