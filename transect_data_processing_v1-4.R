@@ -10,7 +10,7 @@ library(magrittr)
 #load the files as variables and load the boundary shapefile----
 datasheet <- "C:/mydatasheet.xlsx"
 excel_sheets(datasheet)
-sheet_DS <- "sheet containaing direct sighting data"
+sheet_DS <- "sheet containing direct sighting data"
 sheet_pellet <- "sheet containing pellet plots data"
 sheet_h.dist_veg <- "sheet containing 400m interval data (human dist. and vegetation)"
 shapefile_dir <- "path/of/shapefile/folder"
@@ -152,17 +152,22 @@ leaflet() %>%
 
 #sort data for distance----
 #convert bearings to angle----
-DS_raw_bearing <- within (DS_raw, {sighting_angle <- ifelse( ifelse(abs(`Compass Bearing Animal`-`Compass Bearing Walk`)>90,
-                                                                    360-abs(`Compass Bearing Animal`-`Compass Bearing Walk`),
-                                                                    abs(`Compass Bearing Animal`-`Compass Bearing Walk`))>90,
-                                                             90,
-                                                             ifelse(abs(`Compass Bearing Animal`-`Compass Bearing Walk`)>90,
-                                                                    360-abs(`Compass Bearing Animal`-`Compass Bearing Walk`),
-                                                                    abs(`Compass Bearing Animal`-`Compass Bearing Walk`)))})
+#check the absolute difference between animal bearing and walk bearing call it 'x'.
+#if x is greater than 90, as this may happen when working with bearings greater than 270 and lesser than 90, then subract x from 360 and call this value 'y'.
+#if y is strill greater than 90, then use then use the back bearing of the walk and calculate the absolute difference between then animal bearing and the back bearing of the walk call it 'z'.
 
-#format rows----
-blank_transects <- transect_raw[!transect_raw$`Transect ID` %in% sighting_raw$`Transect ID`,]
-distance <- rbind(sighting_raw, blank_transects)
-
+sighting_angle <- function(animal, walk){
+   sighting_angle_raw = ifelse(abs(animal-walk)>90,360-abs(animal-walk),abs(animal-walk))
+   backbearing_walk = ifelse(walk>180, walk-180, walk+180)
+   sighting_angle_backbearing = ifelse(abs(animal-backbearing_walk)>90,360-abs(animal-backbearing_walk),abs(animal-backbearing_walk))
+   return(ifelse(sighting_angle_raw>90,sighting_angle_backbearing,sighting_angle_raw))
+  }
+Dist_S <- read_excel(datasheet, sheet = sheet_DS) %>% 
+  .[!is.na(.$`Sl. No.`),]
+Distance <-  read_excel(datasheet, sheet = sheet_DS) %>% 
+  .[!duplicated(.$`Transect ID`),] %>% 
+  .[!.$`Transect ID` %in% Dist_S$`Transect ID`,] %>% 
+  rbind(Dist_S,.) %>% 
+  within(.,sightingangle <- sighting_angle(animal = `Compass Bearing Animal`, walk = `Compass Bearing Walk`))
 
 # points to lines code borrowed from https://stackoverflow.com/questions/42487700/how-to-create-a-polyline-for-each-row
