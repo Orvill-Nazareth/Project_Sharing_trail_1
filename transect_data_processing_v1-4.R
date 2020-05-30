@@ -155,13 +155,13 @@ leaflet() %>%
 #check the absolute difference between animal bearing and walk bearing call it 'x'.
 #if x is greater than 90, as this may happen when working with bearings greater than 270 and lesser than 90, then subract x from 360 and call this value 'y'.
 #if y is strill greater than 90, then use then use the back bearing of the walk and calculate the absolute difference between then animal bearing and the back bearing of the walk call it 'z'.
-
 sighting_angle <- function(animal, walk){
    sighting_angle_raw = ifelse(abs(animal-walk)>90,360-abs(animal-walk),abs(animal-walk))
    backbearing_walk = ifelse(walk>180, walk-180, walk+180)
    sighting_angle_backbearing = ifelse(abs(animal-backbearing_walk)>90,360-abs(animal-backbearing_walk),abs(animal-backbearing_walk))
    return(ifelse(sighting_angle_raw>90,sighting_angle_backbearing,sighting_angle_raw))
-  }
+}
+
 Dist_S <- read_excel(datasheet, sheet = sheet_DS) %>% 
   .[!is.na(.$`Sl. No.`),]
 Distance <-  read_excel(datasheet, sheet = sheet_DS) %>% 
@@ -169,5 +169,7 @@ Distance <-  read_excel(datasheet, sheet = sheet_DS) %>%
   .[!.$`Transect ID` %in% Dist_S$`Transect ID`,] %>% 
   rbind(Dist_S,.) %>% 
   within(.,sightingangle <- sighting_angle(animal = `Compass Bearing Animal`, walk = `Compass Bearing Walk`))
+Distance$Species <- ifultools::properCase(Distance$Species)
+write.csv(Distance, "C:/output.csv", na = "")
 
 # points to lines code borrowed from https://stackoverflow.com/questions/42487700/how-to-create-a-polyline-for-each-row
