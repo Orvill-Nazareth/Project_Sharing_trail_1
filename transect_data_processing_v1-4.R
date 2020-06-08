@@ -161,7 +161,6 @@ sighting_angle <- function(animal, walk){
    sighting_angle_backbearing = ifelse(abs(animal-backbearing_walk)>90,360-abs(animal-backbearing_walk),abs(animal-backbearing_walk))
    return(ifelse(sighting_angle_raw>90,sighting_angle_backbearing,sighting_angle_raw))
 }
-
 Dist_S <- read_excel(datasheet, sheet = sheet_DS) %>% 
   .[!is.na(.$`Sl. No.`),]
 Distance <-  read_excel(datasheet, sheet = sheet_DS) %>% 
@@ -169,6 +168,7 @@ Distance <-  read_excel(datasheet, sheet = sheet_DS) %>%
   .[!.$`Transect ID` %in% Dist_S$`Transect ID`,] %>% 
   rbind(Dist_S,.) %>% 
   within(.,sightingangle <- sighting_angle(animal = `Compass Bearing Animal`, walk = `Compass Bearing Walk`))
+
 Distance$Species <- ifultools::properCase(Distance$Species)
 write.csv(Distance, "C:/output.csv", na = "")
 
